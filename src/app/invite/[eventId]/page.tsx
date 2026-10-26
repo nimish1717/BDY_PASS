@@ -19,10 +19,10 @@ import { format } from "date-fns";
 
 const mockEvent: Event = {
   id: 'example-event-id',
-  title: "Birthday Pass - Coffee & Catchup! ☕️",
+  title: "Coffee & Catchup! ☕️",
   description: "Good food • Great people • Better memories! Join me to celebrate my birthday with coffee, pastries, and chaos!",
   type: "flexible",
-  venue: "The Local Roastery, Downtown",
+  venue: "Delhi",
   personalized_message: "Same girl, bigger chaos! Can't wait to see you there! ♡",
   cover_emoji: "👑",
   allowed_start_time: "10:00",
@@ -44,7 +44,7 @@ export default function InvitePage() {
   const [showSurprise, setShowSurprise] = useState(false);
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date("2026-11-04T00:00:00"));
-  const [selectedTime, setSelectedTime] = useState<string>("12:00");
+  const [selectedTime, setSelectedTime] = useState<string>("11:00");
   
   const [isDark, setIsDark] = useState(false);
   const [isMuted, setIsMuted] = useState(false);

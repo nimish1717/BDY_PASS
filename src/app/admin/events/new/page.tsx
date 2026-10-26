@@ -205,7 +205,7 @@ export default function NewEventPage() {
                       name="venue" 
                       value={formData.venue} 
                       onChange={handleChange} 
-                      placeholder="e.g. Central Perk" 
+                      placeholder="e.g. Delhi" 
                       className="bg-white/50 border-white/40"
                     />
                   </div>

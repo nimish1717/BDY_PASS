@@ -1,20 +1,30 @@
 import type { Metadata } from "next";
-import { Quicksand, Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Playfair_Display, Cinzel, Caveat } from "next/font/google";
 import "./globals.css";
-
-const quicksand = Quicksand({
-  variable: "--font-heading",
-  subsets: ["latin"],
-});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-serif",
+  subsets: ["latin"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
+  subsets: ["latin"],
+});
+
+const caveat = Caveat({
+  variable: "--font-handwriting",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "BestiePass - Let's Hang Out",
-  description: "A digital invitation experience",
+  title: "Birthday Invite - Special Edition VIP Pass",
+  description: "An exclusive birthday invitation and VIP entry pass experience",
 };
 
 export default function RootLayout({
@@ -25,10 +35,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${quicksand.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} ${playfair.variable} ${cinzel.variable} ${caveat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
+      <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

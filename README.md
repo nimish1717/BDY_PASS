@@ -1,12 +1,13 @@
-# BestiePass 💌
+# Birthday Pass 🎟️
 
-BestiePass is a premium, mobile-first web app designed to create and share digital invitation experiences for your best friends. Generate beautifully designed QR codes, personalized messages, and allow friends to RSVP seamlessly to both "fixed" time and "flexible" window hangouts.
+Birthday Pass is a premium, mobile-first web app designed to create and share digital invitation experiences for your birthday celebrations. Generate beautifully designed VIP ticket passes with QR codes, personalized messages, and allow guests to RSVP seamlessly to both "fixed" time and "flexible" window birthday events.
 
 ## Features ✨
 
-- **Animated & Interactive:** Filled with floating hearts, smooth framer-motion transitions, and confetti effects.
-- **Flexible Scheduling:** Admins can send flexible window dates where besties can choose a time that works best for them.
-- **Digital Passes:** Generates beautiful "BestiePass" digital cards with QR codes that can be downloaded as images.
+- **Vintage VIP Ticket Pass:** Stunning Burgundy (#800020) and vintage parchment ticket pass with scalloped tear-off stub, authentic rubber stamps, and custom QR codes.
+- **Animated & Interactive:** Filled with floating party shapes, smooth framer-motion transitions, and burgundy-gold confetti effects.
+- **Flexible Scheduling:** Admins can send flexible window dates where guests can choose a time that works best for them.
+- **Digital Passes:** Generates beautiful "Birthday Pass" digital VIP cards with QR codes that can be downloaded as images (PNG) and PDFs.
 - **Premium UI:** Glassmorphism, soft pastel gradients, and satisfying micro-interactions using shadcn/ui and Tailwind CSS.
 - **Admin Dashboard:** Easily track RSVPs, create new events, and copy shareable invite links.
 

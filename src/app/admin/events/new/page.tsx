@@ -99,7 +99,7 @@ export default function NewEventPage() {
           <Card className="glass-card border-none shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-heading text-primary">Event Created! ✨</CardTitle>
-              <CardDescription>Your BestiePass is ready to share.</CardDescription>
+              <CardDescription>Your Birthday Pass is ready to share.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center space-y-6">
               <div className="bg-white p-4 rounded-2xl shadow-inner">
@@ -132,7 +132,7 @@ export default function NewEventPage() {
           </Button>
           <div>
             <h1 className="text-3xl font-heading font-bold text-foreground">Create New Event</h1>
-            <p className="text-muted-foreground">Set up a new hangout with your bestie.</p>
+            <p className="text-muted-foreground">Set up a new Birthday Invite event.</p>
           </div>
         </div>
 

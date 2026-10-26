@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const shapes = ["💖", "✨", "🌟", "🌸", "🦋", "🎀"];
+const shapes = ["🎂", "👑", "✨", "💖", "🥂", "🎀", "🧁", "⭐", "🎟️", "🌸"];
 
 export function FloatingBackground() {
   const [elements, setElements] = useState<{ id: number; shape: string; left: number; top: number; delay: number }[]>([]);

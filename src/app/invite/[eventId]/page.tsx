@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CalendarDays, MapPin, Moon, Sun, Crown, Ticket } from "lucide-react";
@@ -30,6 +30,7 @@ const mockEvent: Event = {
 
 export default function InvitePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const eventId = params.eventId as string;
 
   const [event, setEvent] = useState<Event | null>(null);
@@ -45,6 +46,65 @@ export default function InvitePage() {
 
   useEffect(() => {
     const fetchEvent = async () => {
+      // 1. Read directly from the URL link (works on ANY phone, PC, WhatsApp, etc.!)
+      const encodedData = searchParams.get("data");
+      if (encodedData) {
+        try {
+          const jsonStr = decodeURIComponent(escape(atob(decodeURIComponent(encodedData))));
+          const parsed = JSON.parse(jsonStr);
+          const eventFromUrl: Event = {
+            id: eventId,
+            title: parsed.t || parsed.title || mockEvent.title,
+            description: parsed.d || parsed.description || mockEvent.description,
+            venue: parsed.v || parsed.venue || mockEvent.venue,
+            fixed_date: parsed.dt || parsed.date || parsed.fixed_date || "2026-11-04",
+            fixed_start_time: parsed.tm || parsed.time || parsed.fixed_start_time || "11:00",
+            cover_emoji: parsed.e || parsed.cover_emoji || "👑",
+            personalized_message: parsed.m || parsed.personalized_message || "",
+            type: "fixed",
+            created_at: new Date().toISOString()
+          };
+
+          // Cache on phone's local storage for future visits
+          if (typeof window !== "undefined") {
+            try {
+              const stored = JSON.parse(localStorage.getItem("bdy_events") || "[]");
+              const filtered = stored.filter((e: any) => e.id !== eventId);
+              filtered.push(eventFromUrl);
+              localStorage.setItem("bdy_events", JSON.stringify(filtered));
+            } catch (e) {}
+          }
+
+          setEvent(eventFromUrl);
+          setLoading(false);
+          return;
+        } catch (err) {
+          console.warn("Could not decode event from URL param:", err);
+        }
+      }
+
+      // Check URL query parameters ?title=...&venue=...
+      const qTitle = searchParams.get("title");
+      const qVenue = searchParams.get("venue");
+      if (qTitle || qVenue) {
+        const eventFromQuery: Event = {
+          id: eventId,
+          title: qTitle || mockEvent.title,
+          description: searchParams.get("desc") || mockEvent.description,
+          venue: qVenue || mockEvent.venue,
+          fixed_date: searchParams.get("date") || "2026-11-04",
+          fixed_start_time: searchParams.get("time") || "11:00",
+          cover_emoji: searchParams.get("emoji") || "👑",
+          personalized_message: "",
+          type: "fixed",
+          created_at: new Date().toISOString()
+        };
+        setEvent(eventFromQuery);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Check Supabase
       try {
         const { data } = await supabase.from('events').select('*').eq('id', eventId).single();
         if (data) {
@@ -56,7 +116,7 @@ export default function InvitePage() {
         console.warn("Supabase fetch notice:", e);
       }
 
-      // Check localStorage backup
+      // 3. Check browser's localStorage
       if (typeof window !== "undefined") {
         try {
           const stored = JSON.parse(localStorage.getItem("bdy_events") || "[]");
@@ -69,12 +129,12 @@ export default function InvitePage() {
         } catch (e) {}
       }
 
-      // Fallback to mock birthday event
+      // 4. Fallback to mock birthday event
       setEvent(mockEvent);
       setLoading(false);
     };
     fetchEvent();
-  }, [eventId]);
+  }, [eventId, searchParams]);
 
   const toggleTheme = () => {
     setIsDark(!isDark);

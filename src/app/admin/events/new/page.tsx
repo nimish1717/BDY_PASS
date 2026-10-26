@@ -84,7 +84,26 @@ export default function NewEventPage() {
         }
       }
 
-      const url = `${window.location.origin}/invite/${newEventId}`;
+      // Encode event data into link so it works on ANY phone or device immediately!
+      const payload = {
+        id: newEventId,
+        t: formData.title,
+        d: formData.description,
+        v: formData.venue,
+        dt: formData.fixed_date ? format(formData.fixed_date, 'yyyy-MM-dd') : '2026-11-04',
+        tm: formData.fixed_start_time || '11:00',
+        e: formData.cover_emoji || '👑',
+        m: formData.personalized_message || ''
+      };
+      
+      let dataParam = "";
+      try {
+        dataParam = `?data=${encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))))}`;
+      } catch (e) {
+        dataParam = `?title=${encodeURIComponent(formData.title)}&venue=${encodeURIComponent(formData.venue)}&date=${encodeURIComponent(payload.dt)}&time=${encodeURIComponent(payload.tm)}`;
+      }
+
+      const url = `${window.location.origin}/invite/${newEventId}${dataParam}`;
       setCreatedUrl(url);
       toast.success("Birthday Pass created successfully! 🎉");
     } catch (error) {

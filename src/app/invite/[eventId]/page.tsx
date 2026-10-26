@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Sparkles, CalendarDays, MapPin, Clock, Volume2, VolumeX, Moon, Sun, Crown, Ticket } from "lucide-react";
+import { Sparkles, CalendarDays, MapPin, Moon, Sun, Crown, Ticket } from "lucide-react";
 import { formatTime12Hour } from "@/lib/utils";
 
 import { DeclineFlow } from "@/components/invite/DeclineFlow";
@@ -15,18 +14,17 @@ import { FloatingBackground } from "@/components/ui/floating-background";
 import { supabase } from "@/lib/supabase";
 
 import { Event, RSVP, submitRSVP } from "@/lib/events";
-import { format } from "date-fns";
 
 const mockEvent: Event = {
   id: 'example-event-id',
   title: "Coffee & Catchup! ☕️",
   description: "Good food • Great people • Better memories! Join me to celebrate my birthday with coffee, pastries, and chaos!",
-  type: "flexible",
+  type: "fixed",
   venue: "Delhi",
+  fixed_date: "2026-11-04",
+  fixed_start_time: "11:00",
   personalized_message: "Same girl, bigger chaos! Can't wait to see you there! ♡",
   cover_emoji: "👑",
-  allowed_start_time: "10:00",
-  allowed_end_time: "20:00",
   created_at: new Date().toISOString()
 };
 
@@ -43,11 +41,7 @@ export default function InvitePage() {
   const [showPass, setShowPass] = useState(false);
   const [showSurprise, setShowSurprise] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date("2026-11-04T00:00:00"));
-  const [selectedTime, setSelectedTime] = useState<string>("11:00");
-  
   const [isDark, setIsDark] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -90,20 +84,15 @@ export default function InvitePage() {
   const handleConfirm = async () => {
     if (!event) return;
 
-    if (event.type === 'flexible') {
-      const allowedStart = event.allowed_start_time || "00:00";
-      const allowedEnd = event.allowed_end_time || "23:59";
-      if (selectedTime < allowedStart || selectedTime > allowedEnd) {
-        return;
-      }
-    }
+    const eventDate = event.fixed_date || event.range_start_date || "2026-11-04";
+    const eventTime = event.fixed_start_time || event.allowed_start_time || "11:00";
 
     const newRsvp: Partial<RSVP> = {
       event_id: event.id,
       guest_name: "VIP Guest",
       status: "confirmed",
-      selected_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "2026-11-04",
-      selected_start_time: selectedTime || "12:00",
+      selected_date: eventDate,
+      selected_start_time: eventTime,
     };
 
     const savedRsvp = await submitRSVP(newRsvp);
@@ -142,18 +131,16 @@ export default function InvitePage() {
 
   if (!event) return <div className="text-center p-8 text-[#800020]">Birthday Event not found</div>;
 
-  const isTimeInvalid = event.type === 'flexible' && (selectedTime < (event.allowed_start_time || "00:00") || selectedTime > (event.allowed_end_time || "23:59"));
+  const eventDate = event.fixed_date || event.range_start_date || "2026-11-04";
+  const eventTime = event.fixed_start_time || event.allowed_start_time || "11:00";
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center py-12 px-4 overflow-x-hidden">
+    <main className="relative min-h-screen flex flex-col items-center justify-center py-10 px-4 overflow-x-hidden">
       <FloatingBackground />
 
-      {/* Top Bar Controls */}
+      {/* Top Bar Controls (Theme toggle only, sound button removed) */}
       <div className="absolute top-4 right-4 z-20 flex gap-2">
-        <Button variant="ghost" size="icon" onClick={() => setIsMuted(!isMuted)} className="rounded-full bg-white/40 dark:bg-black/30 backdrop-blur-md border border-[#800020]/20 text-[#800020] dark:text-[#f8d7dc]">
-          {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-        </Button>
-        <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full bg-white/40 dark:bg-black/30 backdrop-blur-md border border-[#800020]/20 text-[#800020] dark:text-[#f8d7dc]">
+        <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full bg-white/60 dark:bg-black/30 backdrop-blur-md border border-[#800020]/20 text-[#800020] dark:text-[#f8d7dc] shadow-sm">
           {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
       </div>
@@ -165,7 +152,7 @@ export default function InvitePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="relative z-10 glass-card max-w-md w-full p-6 md:p-8 rounded-[2.5rem] shadow-[0_16px_50px_rgba(128,0,32,0.15)] flex flex-col border border-[#800020]/20"
+            className="relative z-10 bg-white/95 dark:bg-[#1c040a]/95 backdrop-blur-xl max-w-md w-full p-7 md:p-10 rounded-[2.5rem] shadow-[0_20px_60px_rgba(128,0,32,0.1)] flex flex-col border border-[#800020]/15 my-auto"
           >
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#800020]/10 text-[#800020] dark:bg-[#800020]/30 dark:text-[#ff9bb0] text-xs font-semibold uppercase tracking-wider mb-3 font-cinzel">
@@ -182,66 +169,33 @@ export default function InvitePage() {
               <p className="text-muted-foreground text-sm leading-relaxed">{event.description}</p>
             </div>
 
+            {/* Clean Fixed Venue and Date & Time Card for both Phone and PC */}
             <div className="space-y-4 mb-6 bg-[#800020]/5 dark:bg-[#800020]/20 p-5 rounded-3xl border border-[#800020]/15">
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-[#800020] dark:text-[#ff9bb0] mt-0.5 shrink-0" />
                 <div>
                   <p className="font-semibold text-xs uppercase tracking-wider text-[#800020] dark:text-[#ff9bb0]">Venue</p>
-                  <p className="text-sm font-medium text-foreground">{event.venue}</p>
+                  <p className="text-sm font-medium text-foreground">{event.venue || "Delhi"}</p>
                 </div>
               </div>
               
-              {event.type === 'fixed' ? (
-                <div className="flex items-start gap-3">
-                  <CalendarDays className="h-5 w-5 text-[#800020] dark:text-[#ff9bb0] mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-xs uppercase tracking-wider text-[#800020] dark:text-[#ff9bb0]">Date & Time</p>
-                    <p className="text-sm font-medium text-foreground">{event.fixed_date} at {formatTime12Hour(event.fixed_start_time)}</p>
-                  </div>
+              <div className="flex items-start gap-3">
+                <CalendarDays className="h-5 w-5 text-[#800020] dark:text-[#ff9bb0] mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-semibold text-xs uppercase tracking-wider text-[#800020] dark:text-[#ff9bb0]">Date & Time</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {eventDate} at {formatTime12Hour(eventTime)}
+                  </p>
                 </div>
-              ) : (
-                <div className="pt-2 border-t border-[#800020]/15">
-                  <p className="font-semibold text-xs uppercase tracking-wider text-[#800020] dark:text-[#ff9bb0] mb-2">Pick your celebration date & time:</p>
-                  <div className="bg-white dark:bg-zinc-900 rounded-2xl p-2 flex flex-col items-center gap-3 border border-[#800020]/10 shadow-sm">
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={setSelectedDate}
-                      className="rounded-md"
-                    />
-                    {selectedDate && (
-                      <div className="w-full px-4 pb-2">
-                        <label className="text-xs text-muted-foreground mb-1 block font-medium">Preferred Time:</label>
-                        <input 
-                          type="time" 
-                          value={selectedTime}
-                          onChange={(e) => setSelectedTime(e.target.value)}
-                          min={event.allowed_start_time || "00:00"}
-                          max={event.allowed_end_time || "23:59"}
-                          className={`w-full bg-muted border rounded-xl p-3 outline-none focus:ring-2 transition-all ${isTimeInvalid ? 'border-destructive focus:ring-destructive/50 text-destructive' : 'border-[#800020]/30 focus:ring-[#800020]/50'}`}
-                        />
-                        <div className="flex justify-between items-center mt-1.5 px-1">
-                          <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                            Allowed: {formatTime12Hour(event.allowed_start_time)} - {formatTime12Hour(event.allowed_end_time)}
-                          </p>
-                          {isTimeInvalid && (
-                            <p className="text-[10px] text-destructive font-bold animate-pulse">Outside party hours!</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-3 mt-auto">
-              <motion.div whileHover={(!isTimeInvalid && (event.type !== 'flexible' || selectedDate)) ? { scale: 1.02 } : {}} whileTap={(!isTimeInvalid && (event.type !== 'flexible' || selectedDate)) ? { scale: 0.98 } : {}}>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Button 
                   size="lg" 
                   onClick={handleConfirm}
-                  disabled={(event.type === 'flexible' && !selectedDate) || isTimeInvalid}
-                  className="w-full rounded-full bg-[#800020] hover:bg-[#660019] text-white font-bold text-base md:text-lg py-6 shadow-xl hover:shadow-[#800020]/40 disabled:opacity-50 transition-all border-none flex items-center justify-center gap-2"
+                  className="w-full rounded-full bg-[#800020] hover:bg-[#660019] text-white font-bold text-base md:text-lg py-6 shadow-xl hover:shadow-[#800020]/40 transition-all border-none flex items-center justify-center gap-2"
                 >
                   <Ticket className="h-5 w-5" />
                   I'm Coming to Celebrate! 🎉

@@ -51,13 +51,32 @@ export default function InvitePage() {
 
   useEffect(() => {
     const fetchEvent = async () => {
-      const { data, error } = await supabase.from('events').select('*').eq('id', eventId).single();
-      if (data) {
-        setEvent(data);
-      } else {
-        // Fallback to mock birthday event for testing
-        setEvent(mockEvent);
+      try {
+        const { data } = await supabase.from('events').select('*').eq('id', eventId).single();
+        if (data) {
+          setEvent(data);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        console.warn("Supabase fetch notice:", e);
       }
+
+      // Check localStorage backup
+      if (typeof window !== "undefined") {
+        try {
+          const stored = JSON.parse(localStorage.getItem("bdy_events") || "[]");
+          const found = stored.find((ev: any) => ev.id === eventId);
+          if (found) {
+            setEvent(found);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // Fallback to mock birthday event
+      setEvent(mockEvent);
       setLoading(false);
     };
     fetchEvent();

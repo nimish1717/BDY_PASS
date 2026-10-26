@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Download, Image as ImageIcon, X, Loader2, Crown, Sparkles, Check, Share2, Calendar, Clock, MapPin } from "lucide-react";
@@ -16,8 +17,13 @@ interface DigitalPassProps {
 
 export function DigitalPass({ event, rsvp, onClose }: DigitalPassProps) {
   const passContainerRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
   const [isDownloading, setIsDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Allow custom pass URL via query param ?passUrl=... or event.pass_image_url
+  const customPassUrl = searchParams.get("passUrl");
+  const passImageSrc = customPassUrl || event.pass_image_url || "/pass-sample.jpg";
 
   // Format date and time
   const displayDate = event.type === 'fixed' 
@@ -36,7 +42,7 @@ export function DigitalPass({ event, rsvp, onClose }: DigitalPassProps) {
       setIsDownloading(true);
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = "/pass-sample.jpg";
+      img.src = passImageSrc;
 
       await new Promise((resolve, reject) => {
         img.onload = resolve;
@@ -71,7 +77,7 @@ export function DigitalPass({ event, rsvp, onClose }: DigitalPassProps) {
       setIsDownloading(true);
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = "/pass-sample.jpg";
+      img.src = passImageSrc;
 
       await new Promise((resolve, reject) => {
         img.onload = resolve;
@@ -145,7 +151,7 @@ export function DigitalPass({ event, rsvp, onClose }: DigitalPassProps) {
           {/* Authentic Pass Artwork */}
           <div className="relative w-full aspect-[682/1024]">
             <img 
-              src="/pass-sample.jpg" 
+              src={passImageSrc} 
               alt="Birthday VIP Pass" 
               className="w-full h-full object-cover block"
             />

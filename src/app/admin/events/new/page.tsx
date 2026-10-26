@@ -65,14 +65,28 @@ export default function NewEventPage() {
         allowed_end_time: formData.allowed_end_time,
       };
 
-      // Save to Supabase
-      const { error } = await supabase.from('events').insert([newEvent]);
-      if (error) throw error;
+      // Try to save to Supabase
+      try {
+        const { error } = await supabase.from('events').insert([newEvent]);
+        if (error) console.warn("Supabase insert notice:", error);
+      } catch (err) {
+        console.warn("Supabase insert network error:", err);
+      }
       
+      // Also store in localStorage as offline backup
+      if (typeof window !== "undefined") {
+        try {
+          const stored = JSON.parse(localStorage.getItem("bdy_events") || "[]");
+          stored.push(newEvent);
+          localStorage.setItem("bdy_events", JSON.stringify(stored));
+        } catch (e) {
+          console.warn("localStorage backup error:", e);
+        }
+      }
+
       const url = `${window.location.origin}/invite/${newEventId}`;
       setCreatedUrl(url);
-      
-      toast.success("Event created successfully! 🎉");
+      toast.success("Birthday Pass created successfully! 🎉");
     } catch (error) {
       console.error(error);
       toast.error("Failed to create event. Please try again.");

@@ -17,6 +17,7 @@ export interface Event {
   range_end_date?: string;
   allowed_start_time?: string;
   allowed_end_time?: string;
+  pass_image_url?: string;
   created_at: string;
 }
 

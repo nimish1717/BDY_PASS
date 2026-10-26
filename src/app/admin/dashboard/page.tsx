@@ -18,10 +18,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const { data, error } = await supabase.from('events').select('*').order('created_at', { ascending: false });
-      
-      if (data) {
-        setEvents(data);
+      try {
+        const { data } = await supabase.from('events').select('*').order('created_at', { ascending: false });
+        if (data && data.length > 0) {
+          setEvents(data);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Supabase fetch notice:", err);
+      }
+
+      // Also merge/load from localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const stored = JSON.parse(localStorage.getItem("bdy_events") || "[]");
+          if (stored.length > 0) {
+            setEvents(stored);
+          }
+        } catch (e) {}
       }
       setLoading(false);
     };

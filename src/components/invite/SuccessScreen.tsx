@@ -4,17 +4,19 @@ import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Ticket, Sparkles, Crown } from "lucide-react";
+import { Ticket, Crown, MapPin, Calendar, Clock } from "lucide-react";
 import { FloatingBackground } from "@/components/ui/floating-background";
-import type { Event } from "@/lib/events";
+import type { Event, RSVP } from "@/lib/events";
+import { formatTime12Hour } from "@/lib/utils";
 
 interface SuccessScreenProps {
   event: Event;
+  rsvp?: RSVP | null;
   guestName: string;
   onGetPass: () => void;
 }
 
-export function SuccessScreen({ event, guestName, onGetPass }: SuccessScreenProps) {
+export function SuccessScreen({ event, rsvp, guestName, onGetPass }: SuccessScreenProps) {
   useEffect(() => {
     const duration = 3500;
     const animationEnd = Date.now() + duration;
@@ -39,6 +41,16 @@ export function SuccessScreen({ event, guestName, onGetPass }: SuccessScreenProp
     return () => clearInterval(interval);
   }, []);
 
+  const confirmedDate = event.type === 'fixed' 
+    ? (event.fixed_date || '04 NOV 2026') 
+    : (rsvp?.selected_date || event.fixed_date || '04 NOV 2026');
+
+  const confirmedTime = event.type === 'fixed'
+    ? (event.fixed_start_time ? formatTime12Hour(event.fixed_start_time) : '12:00 PM')
+    : (rsvp?.selected_start_time ? formatTime12Hour(rsvp.selected_start_time) : '12:00 PM');
+
+  const venueLocation = event.venue || 'The Local Roastery, Downtown';
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.92 }}
@@ -47,7 +59,7 @@ export function SuccessScreen({ event, guestName, onGetPass }: SuccessScreenProp
     >
       <FloatingBackground />
       
-      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#800020]/10 text-[#800020] dark:bg-[#800020]/30 dark:text-[#ff9bb0] text-xs font-semibold uppercase tracking-wider mb-4">
+      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#800020]/10 text-[#800020] dark:bg-[#800020]/30 dark:text-[#ff9bb0] text-xs font-semibold uppercase tracking-wider mb-4 font-cinzel">
         <Crown className="w-3.5 h-3.5" /> RSVP Confirmed
       </div>
 
@@ -60,18 +72,26 @@ export function SuccessScreen({ event, guestName, onGetPass }: SuccessScreenProp
       </p>
       
       <div className="bg-[#800020]/5 dark:bg-[#800020]/20 p-5 rounded-3xl mb-8 text-left border border-[#800020]/15 shadow-inner">
-        <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-[#800020] dark:text-[#ff9bb0] font-serif">
+        <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-[#800020] dark:text-[#ff9bb0] font-serif">
           <span>{event.cover_emoji || '👑'}</span> {event.title}
         </h3>
-        {event.venue && (
-          <p className="text-sm text-foreground/80 mb-2 flex items-center gap-2">
-            <span>📍</span> {event.venue}
+        
+        <div className="space-y-2 text-sm text-foreground/90">
+          <p className="flex items-center gap-2.5">
+            <MapPin className="w-4 h-4 text-[#800020] dark:text-[#ff9bb0] shrink-0" />
+            <span className="font-semibold">{venueLocation}</span>
           </p>
-        )}
-        <p className="text-sm text-foreground/80 flex items-center gap-2">
-          <span>📅</span> {event.type === 'fixed' ? event.fixed_date : 'Selected Birthday Date'}
-        </p>
-        <p className="text-xs text-[#800020]/80 dark:text-[#ff9bb0]/80 font-semibold mt-2 pt-2 border-t border-[#800020]/10 flex items-center gap-1.5">
+          <p className="flex items-center gap-2.5">
+            <Calendar className="w-4 h-4 text-[#800020] dark:text-[#ff9bb0] shrink-0" />
+            <span className="font-semibold">{confirmedDate}</span>
+          </p>
+          <p className="flex items-center gap-2.5">
+            <Clock className="w-4 h-4 text-[#800020] dark:text-[#ff9bb0] shrink-0" />
+            <span className="font-semibold">{confirmedTime}</span>
+          </p>
+        </div>
+
+        <p className="text-xs text-[#800020]/80 dark:text-[#ff9bb0]/80 font-semibold mt-3 pt-2.5 border-t border-[#800020]/10 flex items-center gap-1.5">
           <span>👗</span> Dress Code: Comfortable & Cute (as always) ♡
         </p>
       </div>

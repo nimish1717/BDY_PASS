@@ -273,6 +273,7 @@ export default function InvitePage() {
           <SuccessScreen 
             key="success"
             event={event} 
+            rsvp={rsvpData}
             guestName="VIP Guest" 
             onGetPass={() => setShowPass(true)} 
           />
